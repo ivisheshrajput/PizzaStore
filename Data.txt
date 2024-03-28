@@ -1,0 +1,248 @@
+// App.js
+import React from 'react';
+import { Provider } from 'react-redux';
+import store from './redux/store';
+import PizzaOrderForm from './components/PizzaOrderForm';
+import PizzaProgress from './components/PizzaProgress';
+
+function App() {
+  return (
+    <Provider store={store}>
+      <div className="App">
+        <h1>Pizza Shop</h1>
+        <PizzaOrderForm />
+        <PizzaProgress />
+      </div>
+    </Provider>
+  );
+}
+
+export default App;
+
+
+
+
+// components/PizzaOrderForm.js
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { placeOrder } from '../redux/actions';
+
+const PizzaOrderForm = () => {
+  const dispatch = useDispatch();
+  const [order, setOrder] = useState({
+    type: '',
+    size: '',
+    base: ''
+  });
+
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setOrder(prevOrder => ({
+      ...prevOrder,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = e => {
+    e.preventDefault();
+    dispatch(placeOrder(order));
+    setOrder({
+      type: '',
+      size: '',
+      base: ''
+    });
+  };
+
+  return (
+    <div>
+      <h2>Place Your Pizza Order</h2>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>
+            Type:
+            <select name="type" value={order.type} onChange={handleChange}>
+              <option value="">Select</option>
+              <option value="veg">Veg</option>
+              <option value="non-veg">Non-Veg</option>
+            </select>
+          </label>
+        </div>
+        <div>
+          <label>
+            Size:
+            <select name="size" value={order.size} onChange={handleChange}>
+              <option value="">Select</option>
+              <option value="large">Large</option>
+              <option value="medium">Medium</option>
+              <option value="small">Small</option>
+            </select>
+          </label>
+        </div>
+        <div>
+          <label>
+            Base:
+            <select name="base" value={order.base} onChange={handleChange}>
+              <option value="">Select</option>
+              <option value="thin">Thin</option>
+              <option value="thick">Thick</option>
+            </select>
+          </label>
+        </div>
+        <button type="submit">Place Order</button>
+      </form>
+    </div>
+  );
+};
+
+export default PizzaOrderForm;
+
+
+
+
+// components/PizzaProgress.js
+import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { moveOrder, cancelOrder } from '../redux/actions';
+
+const PizzaProgress = () => {
+  const orders = useSelector(state => state.orders);
+  const dispatch = useDispatch();
+
+  const handleMoveOrder = (orderId, stage) => {
+    dispatch(moveOrder(orderId, stage));
+  };
+
+  const handleCancelOrder = orderId => {
+    dispatch(cancelOrder(orderId));
+  };
+
+  return (
+    <div>
+      <h2>Pizza Progress</h2>
+      <div>
+        <table>
+          <thead>
+            <tr>
+              <th>Order Id</th>
+              <th>Stage</th>
+              <th>Total Time Spent</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {orders.map(order => (
+              <tr key={order.id}>
+                <td>{order.id}</td>
+                <td>{order.stage}</td>
+                <td>{order.totalTimeSpent}</td>
+                <td>
+                  {order.stage !== 'Order Ready' && (
+                    <>
+                      <button onClick={() => handleMoveOrder(order.id, 'next')}>
+                        Next
+                      </button>
+                      <button onClick={() => handleMoveOrder(order.id, 'picked')}>
+                        Picked
+                      </button>
+                    </>
+                  )}
+                  <button onClick={() => handleCancelOrder(order.id)}>Cancel</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+export default PizzaProgress;
+
+
+
+
+// redux/actions.js
+export const placeOrder = order => ({
+  type: 'PLACE_ORDER',
+  payload: order
+});
+
+export const moveOrder = (orderId, stage) => ({
+  type: 'MOVE_ORDER',
+  payload: { orderId, stage }
+});
+
+export const cancelOrder = orderId => ({
+  type: 'CANCEL_ORDER',
+  payload: orderId
+});
+
+
+
+
+
+
+
+
+// redux/reducers.js
+const initialState = {
+  orders: []
+};
+
+const reducer = (state = initialState, action) => {
+  switch (action.type) {
+    case 'PLACE_ORDER':
+      const newOrder = {
+        ...action.payload,
+        id: state.orders.length + 1,
+        stage: 'Order Placed',
+        totalTimeSpent: 0
+      };
+      return {
+        ...state,
+        orders: [...state.orders, newOrder]
+      };
+    case 'MOVE_ORDER':
+      return {
+        ...state,
+        orders: state.orders.map(order =>
+          order.id === action.payload.orderId
+            ? {
+                ...order,
+                stage: action.payload.stage,
+                totalTimeSpent: order.totalTimeSpent + 1
+              }
+            : order
+        )
+      };
+    case 'CANCEL_ORDER':
+      return {
+        ...state,
+        orders: state.orders.filter(order => order.id !== action.payload)
+      };
+    default:
+      return state;
+  }
+};
+
+export default reducer;
+
+
+
+
+
+const dummyData = [
+  { id: 1, type: 'veg', size: 'large', base: 'thin', stage: 'Order Placed', totalTimeSpent: 0 },
+  { id: 2, type: 'non-veg', size: 'medium', base: 'thick', stage: 'Order Placed', totalTimeSpent: 0 },
+  { id: 3, type: 'veg', size: 'small', base: 'thin', stage: 'Order Placed', totalTimeSpent: 0 },
+  { id: 4, type: 'veg', size: 'large', base: 'thick', stage: 'Order Placed', totalTimeSpent: 0 },
+  { id: 5, type: 'non-veg', size: 'medium', base: 'thin', stage: 'Order Placed', totalTimeSpent: 0 },
+  { id: 6, type: 'veg', size: 'small', base: 'thick', stage: 'Order Placed', totalTimeSpent: 0 },
+  { id: 7, type: 'veg', size: 'large', base: 'thin', stage: 'Order Placed', totalTimeSpent: 0 },
+  { id: 8, type: 'non-veg', size: 'medium', base: 'thick', stage: 'Order Placed', totalTimeSpent: 0 },
+  { id: 9, type: 'veg', size: 'small', base: 'thin', stage: 'Order Placed', totalTimeSpent: 0 },
+  { id: 10, type: 'veg', size: 'large', base: 'thick', stage: 'Order Placed', totalTimeSpent: 0 }
+];
+
+export default dummyData;
