@@ -4,7 +4,7 @@ import dummyData from "../constant/config";
 const PizzaProgress = () => {
   return (
     <div className="mt-10 flex justify-center items-center ">
-      <div className="bg-white w-10/12 p-4 rounded-md">
+      <div className="bg-white w-10/12 p-4 rounded-md   ">
         <h2 className="text-lg font-semibold">Pizza Progress</h2>
         <div>
           <table className="w-full">
@@ -18,33 +18,24 @@ const PizzaProgress = () => {
             </thead>
             <tbody>
               {dummyData.map((order) => (
-                <tr key={order.id}>
-                  <td style={{ width: "25%" }} className="mx-auto">
+                <tr key={order.id} className="mx-auto">
+                  <td style={{ width: "25%" }} >
                     {order.id}
                   </td>
-                  <td style={{ width: "25%" }} className="">
+                  <td style={{ width: "25%" }}>
                     {order.stage}
                   </td>
-                  <td style={{ width: "25%" }} className="">
+                  <td style={{ width: "25%" }}>
                     {order.totalTimeSpent}
                   </td>
                   <td style={{ width: "25%" }} className="space-x-4">
-                    {order.stage !== "Order Ready" && (
-                      <>
-                        <button className="bg-[#B53422] text-white">
-                          {/* onClick={() => handleMoveOrder(order.id, "next")} */}{" "}
-                          Next
-                        </button>
-                        <button>
-                          {/* onClick={() => handleMoveOrder(order.id, "picked")} */}{" "}
-                          Picked
-                        </button>
-                      </>
-                    )}
-                    <button>
-                      {/* onClick={() => handleCancelOrder(order.id)} */} Cancel
-                    </button>
-                  </td>
+  {order.stage !== "Order Ready" && order.stage !== "Order Picked" && (
+    <button  className="bg-[#B53422] text-white px-2 py-1 rounded-md">
+      {/* onClick={() => handleCancelOrder(order.id)} */} Cancel
+    </button>
+  )}
+</td>
+
                 </tr>
               ))}
             </tbody>

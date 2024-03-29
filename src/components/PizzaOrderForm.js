@@ -1,10 +1,14 @@
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { addPizza } from "../utils/pizzaSlice";
 
 const PizzaOrderForm = () => {
+  const dispatch = useDispatch();
   const [order, setOrder] = useState({
     type: "",
     size: "",
     base: "",
+    timer: null,
   });
 
   const handleChange = (e) => {
@@ -17,13 +21,17 @@ const PizzaOrderForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const newOrder = { ...order };
+    newOrder.timer = new Date();
+
+    dispatch(addPizza(newOrder));
     setOrder({
       type: "",
       size: "",
       base: "",
+      timer: null,
     });
   };
-
   return (
     <div className="flex justify-center items-center">
       <form
