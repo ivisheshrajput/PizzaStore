@@ -1,4 +1,3 @@
-// pizzaSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
 let nextOrderId = 1;
@@ -12,24 +11,52 @@ const pizzaSlice = createSlice({
     addPizza: (state, action) => {
       const newPizzaOrder = {
         ...action.payload,
-        id: nextOrderId++, // Assigning an order number
+        id: nextOrderId++,
         stage: "Order Placed",
       };
       state.orders.push(newPizzaOrder);
     },
     removePizza: (state, action) => {
-      // Implement remove pizza logic if needed
+      const orderIdToRemove = action.payload;
+      state.orders = state.orders.filter(
+        (order) => order.id !== orderIdToRemove
+      );
     },
     moveToMaking: (state, action) => {
       const orderId = action.payload;
-      const orderIndex = state.orders.findIndex((order) => order.id === orderId);
+      const orderIndex = state.orders.findIndex(
+        (order) => order.id === orderId
+      );
       if (orderIndex !== -1) {
         state.orders[orderIndex].stage = "Order In Making";
       }
     },
-    
+    moveToReady: (state, action) => {
+      const orderId = action.payload;
+      const orderIndex = state.orders.findIndex(
+        (order) => order.id === orderId
+      );
+      if (orderIndex !== -1) {
+        state.orders[orderIndex].stage = "Order Ready";
+      }
+    },
+    moveToPicked: (state, action) => {
+      const orderId = action.payload;
+      const orderIndex = state.orders.findIndex(
+        (order) => order.id === orderId
+      );
+      if (orderIndex !== -1) {
+        state.orders[orderIndex].stage = "Order Picked";
+      }
+    },
   },
 });
 
-export const { addPizza, removePizza, moveToMaking } = pizzaSlice.actions;
+export const {
+  addPizza,
+  removePizza,
+  moveToMaking,
+  moveToReady,
+  moveToPicked,
+} = pizzaSlice.actions;
 export default pizzaSlice.reducer;
